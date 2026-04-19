@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Plateforme QCM PMP – Belgacem Fezai | STEG 2026</title>
+  
+  <!-- ==================== ICÔNES COMPLÈTES POUR LE SITE ==================== -->
+  <!-- Favicon classique (multi-navigateurs) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e3a8a'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-weight='bold'%3E✓%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e3a8a'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-weight='bold'%3E✓%3C/text%3E%3C/svg%3E">
+  <link rel="shortcut icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e3a8a'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-weight='bold'%3E✓%3C/text%3E%3C/svg%3E">
+  
+  <!-- Icônes additionnelles pour thème / masque -->
+  <link rel="mask-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e3a8a'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-weight='bold'%3E✓%3C/text%3E%3C/svg%3E" color="#1e3a8a">
+  <meta name="theme-color" content="#1e3a8a">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: linear-gradient(135deg, #eef2f7 0%, #d9e2ef 100%);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    .app-container { max-width: 1300px; margin: 0 auto; }
+    .card {
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+      padding: 1.8rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .login-card {
+      max-width: 500px;
+      margin: 5rem auto;
+      text-align: center;
+    }
+    .login-card h1 { font-size: 2rem; color: #0a2a44; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .login-card h1::before { content: "📋"; font-size: 2rem; }
+    .login-card h1::after { content: "🎯"; font-size: 2rem; }
+    .login-card input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 60px;
+      margin-bottom: 1rem;
+      outline: none;
+    }
+    .login-card input:focus { border-color: #1e3a8a; }
+    .btn {
+      border: none;
+      background: #1e3a8a;
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+    .btn:hover { background: #0f2a5c; transform: translateY(-2px); }
+    .btn-outline {
+      background: white;
+      border: 2px solid #1e3a8a;
+      color: #1e3a8a;
+    }
+    .btn-outline:hover { background: #eef4ff; }
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .welcome-badge {
+      background: #1e3a8a;
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 40px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .global-score {
+      background: #eef4ff;
+      padding: 0.5rem 1.5rem;
+      border-radius: 40px;
+      font-weight: 700;
+      color: #0a2a44;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.8rem;
+      margin-top: 1rem;
+    }
+    .quiz-card {
+      background: white;
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      transition: 0.2s;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      position: relative;
+    }
+    .quiz-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15); }
+    .quiz-title { font-size: 1.4rem; font-weight: 700; color: #0a2a44; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+    .quiz-title::before { content: "📘"; font-size: 1.3rem; }
+    .quiz-desc { color: #475569; margin-bottom: 1rem; font-size: 0.9rem; }
+    .score-badge {
+      display: inline-block;
+      background: #f1f5f9;
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .validation-badge {
+      display: inline-block;
+      margin-left: 0.8rem;
+      background: #10b981;
+      color: white;
+      padding: 0.3rem 0.9rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .validation-badge.pending { background: #f59e0b; }
+    .quiz-active {
+      background: white;
+      border-radius: 32px;
+      padding: 1.8rem;
+    }
+    .back-btn {
+      margin-bottom: 1.5rem;
+      background: none;
+      border: none;
+      font-size: 1rem;
+      color: #1e3a8a;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .back-btn::before { content: "←"; font-size: 1.2rem; }
+    .question-card {
+      background: #fafcff;
+      border: 1px solid #dee6f0;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 14px;
+    }
+    .option-item:hover { background: #eef4ff; }
+    .option-item input { width: 20px; height: 20px; cursor: pointer; }
+    .quiz-actions { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .result-area { margin-top: 1.5rem; padding: 1rem; border-radius: 20px; background: #f0f9ff; }
+    .timer-container {
+      position: sticky;
+      top: 10px;
+      background: #fef2f2;
+      border: 2px solid #ef4444;
+      color: #b91c1c;
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      margin-left: auto;
+      z-index: 100;
+    }
+    .timer-container::before { content: "⏱️"; font-size: 1.2rem; }
+    footer { text-align: center; margin-top: 2rem; color: #4a5b6e; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    footer::before { content: "©"; opacity: 0.7; }
+    .hidden { display: none; }
+    .register-link { margin-top: 1rem; color: #1e3a8a; cursor: pointer; text-decoration: underline; display: inline-flex; align-items: center; gap: 6px; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #1e3a8a;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    .refresh-btn {
+      background: #10b981;
+      margin-left: 10px;
+      padding: 5px 15px;
+      font-size: 0.8rem;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @media (max-width: 700px) {
+      .card { padding: 1.2rem; }
+      .quiz-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* Icône animée pour le titre */
+    .logo-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      padding: 6px 14px;
+      border-radius: 40px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+    .dashboard-header h1 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .dashboard-header h1::before {
+      content: "📊";
+      font-size: 1.6rem;
+    }
+    .btn[data-icon]::before {
+      content: attr(data-icon);
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="app">
+  <div id="loginScreen" class="login-card card">
+    <h1>PMP QCM Hub</h1>
+    <p style="margin-bottom: 1.5rem; color: #2c4c6e; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <span>👨‍🏫 Belgacem Fezai</span> <span>•</span> <span>🏢 STEG 2026</span>
+    </p>
+    <input type="email" id="loginEmail" placeholder="📧 Email" autocomplete="off">
+    <input type="password" id="loginPassword" placeholder="🔒 Mot de passe">
+    <button class="btn" id="loginBtn" data-icon="🔐">Se connecter</button>
+    <div class="register-link" id="showRegisterBtn">📝 Créer un compte</div>
+  </div>
+
+  <div id="registerScreen" class="login-card card hidden">
+    <h1>📝 Créer un compte</h1>
+    <input type="text" id="regName" placeholder="👤 Nom complet">
+    <input type="email" id="regEmail" placeholder="📧 Email">
+    <input type="password" id="regPassword" placeholder="🔒 Mot de passe (min 6 caractères)">
+    <button class="btn" id="registerBtn" data-icon="✅">S'inscrire</button>
+    <div class="register-link" id="showLoginBtn">← Retour à la connexion</div>
+  </div>
+
+  <div id="dashboardScreen" class="hidden">
+    <div class="dashboard-header">
+      <div>
+        <h1 style="color: #0a2a44;">Centre d'entraînement PMP</h1>
+        <p style="color: #475569; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span>📘 PMBOK® 7 – QCM thématiques</span>
+          <button id="refreshSheetsBtn" class="refresh-btn btn" data-icon="🔄">Synchroniser Google Sheets</button>
+        </p>
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <span class="welcome-badge" id="welcomeUser">👤 Utilisateur</span>
+        <span class="global-score" id="globalScoreDisplay">🏆 Score global: 0%</span>
+        <button class="btn-outline btn" id="logoutBtn" data-icon="🚪">Déconnexion</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="statsSummary" style="margin-bottom: 1rem; padding: 0.75rem; background: #f0f9ff; border-radius: 12px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+        <span>📈</span> <span id="statsText">Progression en cours...</span>
+      </div>
+      <div id="loadingIndicator" class="hidden"><div class="spinner"></div><p style="text-align:center">📡 Chargement des examens depuis Google Sheets...</p></div>
+      <div class="quiz-grid" id="quizGrid"></div>
+    </div>
+
+    <div id="quizActiveZone" class="hidden">
+      <div class="quiz-active">
+        <button class="back-btn" id="closeQuizBtn">Retour au tableau de bord</button>
+        <div id="timerDisplay" class="timer-container hidden">
+          <span>Temps restant : <span id="timeLeft">00:00</span></span>
+        </div>
+        <h2 id="activeQuizTitle" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;"></h2>
+        <div id="quizQuestionsContainer"></div>
+        <div class="quiz-actions">
+          <button class="btn" id="submitQuizBtn" data-icon="✅">Valider mes réponses</button>
+          <button class="btn-outline" id="resetQuizBtn" data-icon="🔄">Réinitialiser</button>
+        </div>
+        <div id="quizResultArea" class="result-area hidden"></div>
+      </div>
+    </div>
+  </div>
+  <footer>Plateforme QCM – Belgacem Fezai · STEG · Avril 2026 · Basé sur PMBOK® Guide 7</footer>
+</div>
+
+<script>
+  // ============================================================
+  // CONFIGURATION
+  // ============================================================
+  const SUPABASE_URL = 'https://edmdpfmezunrbgvajmce.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_xfQQfTzj2plHvAUfkJbvow_-tunu67w';
+  
+  // Google Sheets URLs (votre structure existante)
+  const GOOGLE_SHEETS_QUIZZES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSQ06RX6r8idhbZBtF9XIPC-tOarocz_O5FA7DmGB0_ITJZv2ePqT7B1-Nx34gk8kdVJHxdqQdGzBQy/pub?gid=0&single=true&output=csv';
+  const GOOGLE_SHEETS_QUESTIONS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSQ06RX6r8idhbZBtF9XIPC-tOarocz_O5FA7DmGB0_ITJZv2ePqT7B1-Nx34gk8kdVJHxdqQdGzBQy/pub?gid=1279961684&single=true&output=csv';
+  
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  let quizzes = [];
+  let questions = {};
+  let currentUser = null;
+  let activeQuizId = null;
+  let userAnswers = {};
+  let submitted = false;
+  let timerInterval = null;
+  let secondsRemaining = 0;
+  let currentTimeLimit = 300;
+  
+  // DOM
+  const loginScreen = document.getElementById('loginScreen');
+  const registerScreen = document.getElementById('registerScreen');
+  const dashboardScreen = document.getElementById('dashboardScreen');
+  const quizGrid = document.getElementById('quizGrid');
+  const quizActiveZone = document.getElementById('quizActiveZone');
+  const activeQuizTitle = document.getElementById('activeQuizTitle');
+  const quizQuestionsContainer = document.getElementById('quizQuestionsContainer');
+  const submitQuizBtn = document.getElementById('submitQuizBtn');
+  const resetQuizBtn = document.getElementById('resetQuizBtn');
+  const quizResultArea = document.getElementById('quizResultArea');
+  const closeQuizBtn = document.getElementById('closeQuizBtn');
+  const welcomeUserSpan = document.getElementById('welcomeUser');
+  const globalScoreDisplay = document.getElementById('globalScoreDisplay');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const statsSummary = document.getElementById('statsSummary');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const refreshSheetsBtn = document.getElementById('refreshSheetsBtn');
+  
+  // Helper CSV
+  function parseCSV(csvText) {
+    const lines = csvText.split('\n');
+    if (lines.length === 0) return [];
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    const result = [];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const values = [];
+      let currentValue = '';
+      let inQuotes = false;
+      const row = lines[i];
+      for (let char of row) {
+        if (char === '"') inQuotes = !inQuotes;
+        else if (char === ',' && !inQuotes) {
+          values.push(currentValue.trim().replace(/^"|"$/g, ''));
+          currentValue = '';
+        } else currentValue += char;
+      }
+      values.push(currentValue.trim().replace(/^"|"$/g, ''));
+      const rowObj = {};
+      headers.forEach((header, idx) => { rowObj[header] = values[idx] || ''; });
+      result.push(rowObj);
+    }
+    return result;
+  }
+  
+  async function loadQuizzesFromSheets() {
+    try {
+      loadingIndicator.classList.remove('hidden');
+      quizGrid.innerHTML = '<div class="spinner"></div><p style="text-align:center">📡 Synchronisation avec Google Sheets...</p>';
+      
+      const quizzesResponse = await fetch(GOOGLE_SHEETS_QUIZZES_URL);
+      if (!quizzesResponse.ok) throw new Error(`HTTP ${quizzesResponse.status}`);
+      const quizzesCsv = await quizzesResponse.text();
+      const quizzesData = parseCSV(quizzesCsv);
+      
+      quizzes = quizzesData.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        time_limit: row.time_limit ? parseInt(row.time_limit) : 300
+      }));
+      
+      const questionsResponse = await fetch(GOOGLE_SHEETS_QUESTIONS_URL);
+      if (!questionsResponse.ok) throw new Error(`HTTP ${questionsResponse.status}`);
+      const questionsCsv = await questionsResponse.text();
+      const questionsData = parseCSV(questionsCsv);
+      
+      questions = {};
+      questionsData.forEach(row => {
+        const quizId = row.quiz_id;
+        if (!quizId) return;
+        if (!questions[quizId]) questions[quizId] = [];
+        questions[quizId].push({
+          text: row.question_text,
+          options: [row.option_a, row.option_b, row.option_c, row.option_d],
+          correct: parseInt(row.correct_answer),
+          explanation: row.explanation || "Consultez le PMBOK® 7 pour plus de détails."
+        });
+      });
+      
+      loadingIndicator.classList.add('hidden');
+      if (currentUser) {
+        await refreshUserScoresAndUI();
+        renderQuizGrid();
+      } else {
+        renderQuizGrid();
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      loadingIndicator.classList.add('hidden');
+      quizGrid.innerHTML = '<p style="color: red;">❌ Erreur de chargement. Vérifiez les URLs Google Sheets.</p>';
+      return false;
+    }
+  }
+  
+  // Auth
+  async function login(email, password) {
+    loadingIndicator.classList.remove('hidden');
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    loadingIndicator.classList.add('hidden');
+    if (error) { alert("❌ Erreur: " + error.message); return false; }
+    currentUser = data.user;
+    welcomeUserSpan.innerHTML = `👤 ${currentUser.email}`;
+    loginScreen.classList.add('hidden');
+    dashboardScreen.classList.remove('hidden');
+    await refreshUserScoresAndUI();
+    renderQuizGrid();
+    return true;
+  }
+  
+  async function register(name, email, password) {
+    loadingIndicator.classList.remove('hidden');
+    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: name } } });
+    loadingIndicator.classList.add('hidden');
+    if (error) { alert("❌ " + error.message); return false; }
+    alert("✅ Inscription réussie ! Connectez-vous.");
+    showLogin();
+    return true;
+  }
+  
+  async function logout() {
+    await sb.auth.signOut();
+    currentUser = null;
+    loginScreen.classList.remove('hidden');
+    dashboardScreen.classList.add('hidden');
+    closeQuiz();
+  }
+  
+  // Scores
+  async function saveScore(quizId, score, total) {
+    if (!currentUser) return;
+    const percentage = Math.round((score / total) * 100);
+    await sb.from('quiz_scores').upsert({
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      quiz_id: quizId,
+      score: score,
+      total: total,
+      percentage: percentage,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id,quiz_id' });
+  }
+  
+  async function loadUserScores() {
+    if (!currentUser) return {};
+    const { data, error } = await sb.from('quiz_scores').select('*').eq('user_id', currentUser.id);
+    if (error) return {};
+    const scores = {};
+    data.forEach(item => { scores[item.quiz_id] = { score: item.score, total: item.total }; });
+    return scores;
+  }
+  
+  async function refreshUserScoresAndUI() {
+    if (!currentUser) return {};
+    const scores = await loadUserScores();
+    updateDashboardStats(scores);
+    return scores;
+  }
+  
+  function computeGlobalPercentage(scores) {
+    let totalPoints = 0, totalQuestions = 0;
+    for (let q of quizzes) {
+      const saved = scores[q.id];
+      if (saved && saved.total) { totalPoints += saved.score; totalQuestions += saved.total; }
+    }
+    return totalQuestions === 0 ? 0 : Math.round((totalPoints / totalQuestions) * 100);
+  }
+  
+  function updateDashboardStats(scores = null) {
+    if (!currentUser) return;
+    const globalPercent = computeGlobalPercentage(scores || {});
+    globalScoreDisplay.innerHTML = `🏆 Score global: ${globalPercent}%`;
+    const completedQuizzes = Object.keys(scores || {}).length;
+    const statsTextSpan = document.getElementById('statsText');
+    if (statsTextSpan) statsTextSpan.innerText = `📊 Progression: ${completedQuizzes}/${quizzes.length} QCM complétés | 🎯 ${globalPercent >= 80 ? '✅ En bonne voie pour PMP' : '📚 Continuez vos efforts'}`;
+    else statsSummary.innerHTML = `📈 Progression: ${completedQuizzes}/${quizzes.length} QCM complétés | 🎯 ${globalPercent >= 80 ? '✅ En bonne voie' : '📚 Continuez'}`;
+  }
+  
+  async function renderQuizGrid() {
+    if (!quizGrid) return;
+    if (quizzes.length === 0) { quizGrid.innerHTML = '<p>📭 Aucun examen chargé.</p>'; return; }
+    const scores = currentUser ? await loadUserScores() : {};
+    quizGrid.innerHTML = '';
+    for (let quiz of quizzes) {
+      const quizQuestions = questions[quiz.id] || [];
+      const saved = scores[quiz.id];
+      let scoreHtml = `<span class="score-badge">📝 ${quizQuestions.length} questions</span>`;
+      let badgeHtml = '';
+      if (saved) {
+        const percent = (saved.score / saved.total) * 100;
+        scoreHtml = `<span class="score-badge">🎯 Score: ${saved.score}/${saved.total} (${percent}%)</span>`;
+        badgeHtml = percent >= 80 ? `<span class="validation-badge">✅ Certifié</span>` : percent >= 60 ? `<span class="validation-badge pending">📘 En progression</span>` : `<span class="validation-badge pending">🔄 À réviser</span>`;
+      } else badgeHtml = `<span class="validation-badge pending">🔘 Non débuté</span>`;
+      
+      const card = document.createElement('div');
+      card.className = 'quiz-card';
+      card.innerHTML = `
+        <div class="quiz-title">${escapeHtml(quiz.title)}</div>
+        <div class="quiz-desc">${escapeHtml(quiz.description)}</div>
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px;">${scoreHtml} ${badgeHtml}</div>
+        <button class="btn-outline btn" style="margin-top: 1rem; width: 100%;" data-start="${quiz.id}" data-icon="▶">Commencer le QCM</button>
+      `;
+      const btn = card.querySelector(`[data-start="${quiz.id}"]`);
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (questions[quiz.id]?.length) startQuiz(quiz.id);
+        else alert("❌ Aucune question pour cet examen.");
+      });
+      quizGrid.appendChild(card);
+    }
+  }
+  
+  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
+  
+  // Quiz
+  function startTimer(limitSeconds) {
+    clearInterval(timerInterval);
+    secondsRemaining = limitSeconds;
+    const display = document.getElementById('timeLeft');
+    const container = document.getElementById('timerDisplay');
+    container.classList.remove('hidden');
+    const update = () => { const mins = Math.floor(secondsRemaining/60); const secs = secondsRemaining%60; display.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; };
+    update();
+    timerInterval = setInterval(() => {
+      if (secondsRemaining <= 0) { clearInterval(timerInterval); if(!submitted) { alert("⏰ Temps écoulé !"); submitQuiz(true); } }
+      else { secondsRemaining--; update(); }
+    }, 1000);
+  }
+  
+  function stopTimer() { clearInterval(timerInterval); document.getElementById('timerDisplay')?.classList.add('hidden'); }
+  
+  function startQuiz(quizId) {
+    const quiz = quizzes.find(q => q.id === quizId);
+    const quizQuestions = questions[quizId] || [];
+    if (!quiz || !quizQuestions.length) return;
+    currentTimeLimit = (quiz.time_limit && quiz.time_limit > 0) ? quiz.time_limit : 300;
+    activeQuizId = quizId;
+    submitted = false;
+    userAnswers = {};
+    activeQuizTitle.innerHTML = `📖 ${escapeHtml(quiz.title)}`;
+    let html = '';
+    quizQuestions.forEach((q, idx) => {
+      html += `<div class="question-card" data-qidx="${idx}"><div style="font-weight:700; margin-bottom:0.8rem;">❓ Question ${idx+1} : ${escapeHtml(q.text)}</div><div class="options" id="options-${idx}">`;
+      q.options.forEach((opt, optIdx) => { html += `<div class="option-item"><input type="radio" name="q${idx}" id="q${idx}_opt${optIdx}" value="${optIdx}"><label for="q${idx}_opt${optIdx}">${escapeHtml(opt || `Option ${String.fromCharCode(65+optIdx)}`)}</label></div>`; });
+      html += `</div><div id="fb-${idx}" class="feedback-area" style="margin-top:12px;"></div></div>`;
+    });
+    quizQuestionsContainer.innerHTML = html;
+    for (let i=0; i<quizQuestions.length; i++) {
+      document.querySelectorAll(`input[name="q${i}"]`).forEach(radio => radio.addEventListener('change', (e) => { if(!submitted) userAnswers[i] = parseInt(e.target.value); }));
+    }
+    quizResultArea.classList.add('hidden');
+    quizResultArea.innerHTML = '';
+    document.querySelector('#dashboardScreen .card').classList.add('hidden');
+    quizActiveZone.classList.remove('hidden');
+    startTimer(currentTimeLimit);
+  }
+  
+  async function submitQuiz(isAutoSubmit = false) {
+    if (!activeQuizId || submitted) return;
+    const quizQuestions = questions[activeQuizId] || [];
+    const total = quizQuestions.length;
+    if (!isAutoSubmit) {
+      let missing = [];
+      for (let i=0; i<total; i++) if (userAnswers[i] === undefined) missing.push(i+1);
+      if (missing.length) { alert(`⚠️ Répondez aux questions : ${missing.join(', ')}`); return; }
+    }
+    stopTimer();
+    let score = 0;
+    for (let i=0; i<total; i++) {
+      const isCorrect = (userAnswers[i] === quizQuestions[i].correct);
+      if (isCorrect) score++;
+      const fbDiv = document.getElementById(`fb-${i}`);
+      const correctLetter = String.fromCharCode(65+quizQuestions[i].correct);
+      const userLetter = (userAnswers[i] !== undefined) ? String.fromCharCode(65+userAnswers[i]) : "?";
+      if (fbDiv) {
+        if (isCorrect) { fbDiv.innerHTML = `<span style="color:#1e7e34;">✔ Bonne (${correctLetter})</span>`; fbDiv.style.background = "#e6f7ec"; }
+        else { fbDiv.innerHTML = `<span style="color:#b91c1c;">✘ Vous: ${userLetter} | Correct: ${correctLetter}<br><span style="font-size:0.85rem;">${escapeHtml(quizQuestions[i].explanation)}</span></span>`; fbDiv.style.background = "#fef6f5"; }
+      }
+    }
+    await saveScore(activeQuizId, score, total);
+    if (currentUser) {
+      const updatedScores = await refreshUserScoresAndUI();
+      const newPercent = computeGlobalPercentage(updatedScores);
+      globalScoreDisplay.innerHTML = `🏆 Score global: ${newPercent}%`;
+      await renderQuizGrid();
+    }
+    const percent = (score/total)*100;
+    let msg = percent===100?'🌟 Parfait !':percent>=80?'🏅 Excellent !':percent>=60?'📘 Bien, à réviser':'📚 Continuez vos efforts.';
+    quizResultArea.innerHTML = `<strong>✅ Score : ${score}/${total} (${percent}%)</strong><br>${msg}<br>
+      <button id="retrySameQuizBtn" class="btn-outline btn" data-icon="🔄">Recommencer</button>
+      <button id="backToDashboardBtn" class="btn" data-icon="🏠">Tableau de bord</button>`;
+    quizResultArea.classList.remove('hidden');
+    submitted = true;
+    document.querySelectorAll('#quizQuestionsContainer input').forEach(i => i.disabled = true);
+    document.getElementById('retrySameQuizBtn')?.addEventListener('click', () => resetCurrentQuiz());
+    document.getElementById('backToDashboardBtn')?.addEventListener('click', () => closeQuiz());
+  }
+  
+  function resetCurrentQuiz() {
+    if (!activeQuizId) return;
+    const qs = questions[activeQuizId] || [];
+    submitted = false; userAnswers = {};
+    for (let i=0; i<qs.length; i++) {
+      document.querySelectorAll(`input[name="q${i}"]`).forEach(r => r.checked = false);
+      const fb = document.getElementById(`fb-${i}`); if(fb) { fb.innerHTML = ''; fb.style.background = ''; }
+    }
+    quizResultArea.classList.add('hidden'); quizResultArea.innerHTML = '';
+    document.querySelectorAll('#quizQuestionsContainer input').forEach(i => i.disabled = false);
+    startTimer(currentTimeLimit);
+  }
+  
+  function closeQuiz() {
+    stopTimer();
+    activeQuizId = null; submitted = false; userAnswers = {};
+    document.querySelector('#dashboardScreen .card').classList.remove('hidden');
+    quizActiveZone.classList.add('hidden');
+    if(currentUser) renderQuizGrid();
+  }
+  
+  function showRegister() { loginScreen.classList.add('hidden'); registerScreen.classList.remove('hidden'); }
+  function showLogin() { registerScreen.classList.add('hidden'); loginScreen.classList.remove('hidden'); }
+  
+  async function checkSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      welcomeUserSpan.innerHTML = `👤 ${currentUser.email}`;
+      loginScreen.classList.add('hidden');
+      dashboardScreen.classList.remove('hidden');
+      await loadQuizzesFromSheets();
+    } else await loadQuizzesFromSheets();
+  }
+  
+  // Events
+  document.getElementById('loginBtn').addEventListener('click', () => login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value));
+  document.getElementById('registerBtn').addEventListener('click', () => { const pwd = document.getElementById('regPassword').value; if(pwd.length<6) alert("6 caractères min."); else register(document.getElementById('regName').value, document.getElementById('regEmail').value, pwd); });
+  document.getElementById('showRegisterBtn').addEventListener('click', showRegister);
+  document.getElementById('showLoginBtn').addEventListener('click', showLogin);
+  logoutBtn.addEventListener('click', logout);
+  closeQuizBtn.addEventListener('click', closeQuiz);
+  submitQuizBtn.addEventListener('click', () => submitQuiz(false));
+  resetQuizBtn.addEventListener('click', resetCurrentQuiz);
+  refreshSheetsBtn.addEventListener('click', async () => { await loadQuizzesFromSheets(); if(currentUser) { await refreshUserScoresAndUI(); renderQuizGrid(); } else renderQuizGrid(); });
+  
+  checkSession();
+</script>
+</body>
+</html>
